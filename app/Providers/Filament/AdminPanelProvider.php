@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -30,7 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
+            ->passwordReset()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -47,7 +49,9 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->plugins([
-                FilamentBackgroundsPlugin::make(),
+                FilamentBackgroundsPlugin::make()
+                ->showAttribution(false)
+                ,
                 \Hasnayeen\Themes\ThemesPlugin::make(),
                 BreezyCore::make()
                 ->myProfile(
@@ -72,8 +76,8 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -85,6 +89,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \Hasnayeen\Themes\Http\Middleware\SetTheme::class
             ])
             ->authMiddleware([
                 Authenticate::class,
