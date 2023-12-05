@@ -24,12 +24,12 @@ class Customer extends Model
 // a customer has one card
     public function card(): HasOne
     {
-        return $this->hasOne(Card::class);
+        return $this->hasOne(Card::class, 'id', 'card_id');
     }
 
     // a customer has many transactions
     public function transactions(): HasMany
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Transaction::class, 'customer_id', 'id');
     }
 }

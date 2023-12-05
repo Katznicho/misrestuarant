@@ -55,6 +55,6 @@ class User extends Authenticatable implements HasAvatar
     // a user  belongs to a branch
     public function branch(): BelongsTo
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 }

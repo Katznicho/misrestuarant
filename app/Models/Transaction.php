@@ -21,6 +21,7 @@ class Transaction extends Model
         'card_id',
         'branch_id',
         'user_id',
+        'status',
     ];
 
 
@@ -29,4 +30,18 @@ class Transaction extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    //a transaction belong to a branch
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    // a transaction belongs to a user
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    
 }

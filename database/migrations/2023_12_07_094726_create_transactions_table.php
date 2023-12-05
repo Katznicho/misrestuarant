@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('description')->nullable;
             $table->string('reference');
             $table->foreignId("customer_id")->references("id")->on("customers")->onDelete("cascade")->nullable();
-            $table->foreignId("card_id")->references("id")->on("cards")->onDelete("cascade")->nullable();
             $table->foreignId("branch_id")->references("id")->on("branches")->onDelete("cascade")->nullable();
             $table->foreignId("user_id")->references("id")->on("users")->onDelete("cascade")->nullable();
             $table->softDeletes();

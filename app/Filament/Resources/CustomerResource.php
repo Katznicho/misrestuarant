@@ -4,14 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers;
+use App\Models\Card;
 use App\Models\Customer;
+use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Select;
 
 class CustomerResource extends Resource
 {
@@ -24,9 +30,13 @@ class CustomerResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('card_id')
-                    ->required()
-                    ->numeric(),
+                Select::make('card_id')
+                ->options(Card::all()->pluck('card_number', 'id'))
+                ->searchable()
+                ->required()
+                ->preload()
+                ->label("Card Number")
+                ,
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -42,8 +52,16 @@ class CustomerResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->default(0),
-                Forms\Components\TextInput::make('gender')
-                    ->maxLength(255),
+                // Forms\Components\TextInput::make('gender')
+                //make gender select field
+                Select::make("gender")
+                    ->options([
+                        "Male" => "Male",
+                        "Female" => "Female",
+                        "Other" => "Other",
+                    ])
+                    ->required()
+                    ->label("Gender"),
                 Forms\Components\TextInput::make('address')
                     ->maxLength(255),
             ]);
@@ -53,36 +71,115 @@ class CustomerResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('card_id')
+                Tables\Columns\TextColumn::make('card.card_number')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Card ID copied!')
+                    ->label('Card Number')
+                    ,
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Name copied!')
+                    ->label('Name')
+                    ,
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Email copied!')
+                    ->label('Email')
+                    ,
                 Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Phone copied!')
+                    ->label('Phone')
+                    ,
                 Tables\Columns\TextColumn::make('account_balance')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Account Balance copied!')
+                    ->label('Account Balance')
+                    ,
                 Tables\Columns\TextColumn::make('gender')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Gender copied!')
+                    ->label('Gender')
+                    ,
                 Tables\Columns\TextColumn::make('address')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->copyable()
+                    ->copyMessage('Address copied!')
+                    ->label('Address')
+                    ,
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Deleted At')
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label('Created At')
+                    ,
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->label("Updated At")
+                    ,
             ])
             ->filters([
                 //Tables\Filters\TrashedFilter::make(),
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        );
+                })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+
+                    if ($data['from'] ?? null) {
+                        $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['from'])->toFormattedDateString())
+                            ->removeField('from');
+                    }
+
+                    if ($data['until'] ?? null) {
+                        $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                            ->removeField('until');
+                    }
+
+                    return $indicators;
+                })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -90,9 +187,9 @@ class CustomerResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\ForceDeleteBulkAction::make(),
+                    // Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -101,6 +198,7 @@ class CustomerResource extends Resource
     {
         return [
             //
+            RelationManagers\TransactionsRelationManager::class
         ];
     }
 
