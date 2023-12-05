@@ -32,7 +32,7 @@ class CardResource extends Resource
                 Forms\Components\TextInput::make('card_number')
                     ->required()
                     ->unique()
-                    ->numeric()
+            
                     ->label('Card Number')
                     ,
             ]);
@@ -43,7 +43,6 @@ class CardResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('card_number')
-                    
                     ->searchable()
                     ->sortable()
                     ->toggleable()
