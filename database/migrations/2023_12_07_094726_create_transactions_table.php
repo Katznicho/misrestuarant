@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string("payment_mode");
             $table->text('description')->nullable;
             $table->string('reference');
+            $table->string("order_tracking_id")->nullable();
+            $table->string("OrderNotificationType")->nullable();
             $table->foreignId("customer_id")->references("id")->on("customers")->onDelete("cascade")->nullable();
             $table->foreignId("branch_id")->references("id")->on("branches")->onDelete("cascade")->nullable();
             $table->foreignId("user_id")->references("id")->on("users")->onDelete("cascade")->nullable();

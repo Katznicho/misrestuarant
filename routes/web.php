@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,11 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
 
 //redirect to dashboard
-Route::get('/{any}', function () {
-    return redirect('/admin');
-})->where('any', '.*');
+// Route::get('/{any}', function () {
+//     return redirect('/admin');
+// })->where('any', '.*');
+
+//create a resource payment route
+Route::resource('payments', PaymentController::class);
+Route::get("finishPayment", [PaymentController::class, "finishPayment"])->name("finishPayment");

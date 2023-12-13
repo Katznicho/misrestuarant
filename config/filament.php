@@ -53,6 +53,9 @@ return [
     | After changing the path, you should run `php artisan filament:assets`.
     |
     */
+    'layout' => [
+        'max_content_width' => 'full',
+    ],
 
     'assets_path' => null,
 

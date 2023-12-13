@@ -14,7 +14,40 @@ use Illuminate\Support\Str;
 class ApiController extends Controller
 {
     use UserTrait;
-    //
+    
+    public function logoutCustomer(Request $request)
+    {
+        // $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'response' => 'success',
+            'message' => 'Successfully logged out!'
+        ], 200);
+    }
+
+    public function loginCustomerWithPhoneNumber(Request $request)
+    {
+         $request->validate([
+            'phoneNumber' => 'required|string'
+        ]);
+
+        // Find the customer
+        $customer = Customer::where('phoneNumber', $request->phoneNumber)->first();
+
+        // Check if the customer exists
+        if (!$customer) {
+            return response()->json([
+                'response' => 'failure',
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+        else{
+            return response()->json([
+                'response' => 'success',
+                'customer' => $customer
+            ], 200);
+        }
+
+    }
     public function login(Request $request)
     {
         try {
@@ -23,14 +56,9 @@ class ApiController extends Controller
                 'password' => 'required|string'
             ]);
 
-            //return back what is missing from the request
-
-
-
-    
             // Find the user
             $user = User::where('email', $request->email)->with("branch")->first();
-    
+
             // Check if the user exists and the password is correct
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
@@ -38,10 +66,10 @@ class ApiController extends Controller
                     'message' => 'Invalid credentials'
                 ], 401);
             }
-    
+
             // Create an auth token for the user
             $authToken = $user->createToken('authToken')->plainTextToken;
-    
+
             return response()->json([
                 'response' => 'success',
                 'message' => 'Successfully logged in!',
@@ -49,8 +77,7 @@ class ApiController extends Controller
                 'authToken' => $authToken
             ], 200);
         } catch (\Throwable $th) {
-            //throw $th;
-
+        
             return response()->json([
                 'response' => 'failure',
                 'message' => $th->getMessage()
@@ -140,12 +167,12 @@ class ApiController extends Controller
                     'status'=>"completed",
                     'phone_number' => $customer->phone,
                      "description"=>$request->description??"Deposit",
-                    
+
                 ]);
 
                 $customer->account_balance += $request->amount;
                 $customer->save();
-                
+
                 return response()->json([
                     'response' => 'success',
                     'message' => 'Amount deposited successfully'
@@ -204,7 +231,7 @@ class ApiController extends Controller
 
                 $customer->account_balance -= $request->amount;
                 $customer->save();
-                
+
                 return response()->json([
                     'response' => 'success',
                     'message' => 'Amount withdrawn successfully'
@@ -250,6 +277,19 @@ class ApiController extends Controller
             ], 500);
         }
         //
+
+    }
+
+    public  function  getAllUsers(Request $request){
+        try{
+             $users = User::all();
+             return $users;
+        }catch (\Throwable $throwable){
+            return response()->json([
+                'response' => 'failure',
+                'message' => $throwable->getMessage()
+            ], 500);
+        }
 
     }
 

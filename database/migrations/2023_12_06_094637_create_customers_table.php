@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->string("account_balance")->default(0);
+            $table->string("pin");
+            $table->string("minimum_deposit_amount")->default(500);
             $table->string('gender')->nullable();
             $table->string('address')->nullable();
             $table->foreignId("card_id")->references("id")->on("cards")->onDelete("cascade")->nullable();
