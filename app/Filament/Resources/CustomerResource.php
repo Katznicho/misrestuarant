@@ -38,6 +38,7 @@ class CustomerResource extends Resource
                     ->label("Card Number"),
                 Forms\Components\TextInput::make('name')
                     ->required()
+
                     ->label("Customer Name")
                     ->placeholder('enter customer name')
                     ->maxLength(255),
@@ -49,8 +50,11 @@ class CustomerResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
+                    ->unique()
+                    ->minLength(13)
+                    ->maxLength(13)
                     ->label("Phone Number")
-                    ->placeholder('enter phone number')
+                    ->placeholder('enter phone number for example +256783123456')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('account_balance')

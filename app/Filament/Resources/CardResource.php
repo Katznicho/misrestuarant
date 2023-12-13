@@ -32,7 +32,6 @@ class CardResource extends Resource
                 Forms\Components\TextInput::make('card_number')
                     ->required()
                     ->unique()
-            
                     ->label('Card Number')
                     ,
             ]);

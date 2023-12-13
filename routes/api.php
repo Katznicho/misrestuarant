@@ -46,3 +46,11 @@ Route::post("testSendingMessages", [PaymentController::class, "testSendingMessag
 
 Route::post("checkTransactionStatus", [PaymentController::class, "checkTransactionStatus"]);
 
+//customer routes
+Route::post("validateCustomerPin", [ApiController::class, "validateCustomerPin"]);
+Route::post("loginCustomerWithPhoneNumber", [ApiController::class, "loginCustomerWithPhoneNumber"]);
+Route::post("logoutCustomer", [ApiController::class, "logoutCustomer"]);
+Route::post("changeCustomerPin", [ApiController::class, "changeCustomerPin"]);
+Route::post("getCustomerBalance", [ApiController::class, "getCustomerBalance"]);
+Route::post("getCustomerTransactions", [ApiController::class, "getCustomerTransactions"]);
+

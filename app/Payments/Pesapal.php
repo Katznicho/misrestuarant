@@ -113,7 +113,7 @@ class Pesapal
         }
     }
 
-    public static function orderProcess($reference, $amount, $phone, $description, $callback, $customer_names, $email, $customer_id)
+    public static function orderProcess($reference, $amount, $phone, $description, $callback, $customer_names, $email, $customer_id, $cancel_url)
     {
         try {
             //code...
@@ -125,7 +125,8 @@ class Pesapal
                 'description' => $description,
                 'redirect_mode' => 'PARENT_WINDOW',
                 'callback_url' => $callback,
-                'notification_id' => "586746f5-98fc-422e-8f16-ddd61026fb31",
+                'call_back_url'=> $cancel_url,
+                'notification_id' => "9e81cbac-0086-4277-912e-ddd57ea57cfa",
                 'billing_address' => array(
                     'phone_number' => $phone,
                     'first_name' => $customer_names,

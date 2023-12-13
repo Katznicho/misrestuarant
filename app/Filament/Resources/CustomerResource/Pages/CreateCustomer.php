@@ -33,6 +33,10 @@ class CreateCustomer extends CreateRecord
         $pin =  rand(1000, 9999);
         $hashed_pin = Hash::make($pin);
 
+        $phone =  $this->formatMobileInternational($data['phone']);
+        $data['phone'] = $phone;
+
+
         $customer_name  =  $data['name'];
         $app_name =  env('APP_NAME');
         $playStoreUrl = "https://play.google.com/store/apps/details?id=res";

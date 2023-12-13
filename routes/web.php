@@ -26,3 +26,4 @@ Route::get('/', function () {
 //create a resource payment route
 Route::resource('payments', PaymentController::class);
 Route::get("finishPayment", [PaymentController::class, "finishPayment"])->name("finishPayment");
+Route::get("cancelPayment", [PaymentController::class, "cancelPayment"])->name("cancelPayment");

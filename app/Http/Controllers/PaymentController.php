@@ -90,7 +90,8 @@ class PaymentController extends Controller
             $payment_method = $data->message->payment_method;
 
             if ($data->message->payment_status_description == config("status.payment_status.completed")) {
-
+                $message = "Hello {$customer->name} your payment of {$transaction->amount} has been successfully completed.Thank you";
+                $this->sendMessage($customer->phone_number, $message);
                 //check if the transaction is already completed
                 if ($transaction->status == config("status.payment_status.completed")) {
                     return view("payments.finish");
@@ -105,6 +106,10 @@ class PaymentController extends Controller
                     $customer->save();
                     return view("payments.finish");
                 }
+
+
+                // $this->sendMessage($)
+
             }
         } catch (\Throwable $th) {
             //throw $th;
@@ -125,6 +130,7 @@ class PaymentController extends Controller
             return Pesapal::pesapalRegisterIPN($request->url);
         } catch (\Throwable $th) {
             //throw $th;
+            Log::error($th->getMessage());
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
     }
@@ -140,12 +146,26 @@ class PaymentController extends Controller
         }
     }
 
+    public function cancelPayment(Request $request)
+    {
+        try {
+            $payment_reference =  $request->input("payment_reference");
+            Transaction::where("reference", $payment_reference)->update([
+                "status" => config("status.payment_status.canceled")
+            ]);
+            return view("payments.cancel");
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return view("payments.cancel");
+        }
+    }
+
     public function completePayment(Request $request)
     {
         try {
-            Log::info("==============================================");
+            Log::info("===========The call back was called===================================");
             Log::info("Received Response Page");
-            Log::info("==============================================");
+            Log::info("============The call back was called==================================");
             // Get the parameters from the URL
             $orderTrackingId = $request->input('OrderTrackingId');
             $orderMerchantReference = $request->input('OrderMerchantReference');
@@ -157,18 +177,29 @@ class PaymentController extends Controller
             ]);
 
             $transaction = Transaction::where("reference", $orderMerchantReference)->first();
+            if (!$transaction) {
+                return response()->json([
+                    "status" => 500,
+                    "message" => "Transaction not found"
+                ]);
+            }
             $customer = Customer::find($transaction->customer_id);
             $data = Pesapal::transactionStatus($orderTrackingId, $orderTrackingId);
             $payment_method = $data->message->payment_method;
 
+            Log::info("=========================================call back executed=============================================================================================================");
             Log::info("Received Response Page - Order Tracking ID: $orderTrackingId, Merchant Reference: $orderMerchantReference, Notification Type: $orderNotificationType");
+            Log::info("==========================================call back executed============================================================================================================");
 
             if ($data->message->payment_status_description == config("status.payment_status.completed")) {
+                $message = "Hello {$customer->name} your payment of {$transaction->amount} has been successfully completed.Thank you";
+                $this->sendMessage($customer->phone_number, $message);
 
                 //check if the transaction is already completed
                 if ($transaction->status == config("status.payment_status.completed")) {
                     return response()->json([
-                        "status" => "completed",
+                        "status" => 200,
+                        "message" => "Transaction already completed"
                     ]);
                 } else {
 
@@ -180,7 +211,8 @@ class PaymentController extends Controller
                     $customer->account_balance += $transaction->amount;
                     $customer->save();
                     return response()->json([
-                        "status" => "completed",
+                        "status" => 200,
+                        "message" => "Transaction completed"
                     ]);
                 }
             }
@@ -189,7 +221,7 @@ class PaymentController extends Controller
             Log::info("===========callback url==================================");
             Log::error($th->getMessage());
             Log::info("============call back url=================================");
-            return response()->json(['success' => false, 'message' => $th->getMessage()]);
+            return response()->json(['success' => false, 'message' => $th->getMessage(), "status" => 500]);
         }
     }
 
@@ -201,7 +233,8 @@ class PaymentController extends Controller
                 'amount' => 'required|numeric',
                 'phone_number' => 'required|string',
                 'callback' => 'required|string',
-                'payment_phone_number' => 'required|string'
+                'payment_phone_number' => 'required|string',
+                'cancel_url' => 'required|string'
             ]);
             $getCustomer =  Customer::where('phone', $request->phone_number)->first();
             if (!$getCustomer) {
@@ -215,7 +248,11 @@ class PaymentController extends Controller
             $names = $getCustomer->name;
             $email =  $getCustomer->email;
             $customer_id = $getCustomer->id;
-            $data = Pesapal::orderProcess($reference, $amount, $phone, $description, $callback, $names, $email, $customer_id);
+            $cancel_url = $request->input('cancel_url');
+            //add the payment reference to cancel url
+            $cancel_url = $cancel_url . "?payment_reference=" . $reference;
+            // return $amount;
+            $data = Pesapal::orderProcess($reference, $amount, $phone, $description, $callback, $names, $email, $customer_id, $cancel_url);
             return response()->json(['success' => true, 'message' => 'Order processed successfully', 'response' => $data]);
         } catch (\Throwable $th) {
             //throw $th;
