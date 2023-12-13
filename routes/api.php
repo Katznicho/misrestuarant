@@ -39,8 +39,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 Route::post("registerIPN", [PaymentController::class, "registerIPN"]);
 Route::get("listIPNS", [PaymentController::class, "listIPNS"]);
-Route::post("completePayment", [PaymentController::class, "completePayment"]);
+Route::get("completePayment", [PaymentController::class, "completePayment"]);
 Route::post("processOrder", [PaymentController::class, "processOrder"]);
 
 Route::post("testSendingMessages", [PaymentController::class, "testSendingMessages"]);
+
+Route::post("checkTransactionStatus", [PaymentController::class, "checkTransactionStatus"]);
 

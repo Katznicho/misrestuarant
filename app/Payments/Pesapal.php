@@ -2,6 +2,7 @@
 
 namespace App\Payments;
 
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Config;
 
 class Pesapal
@@ -112,25 +113,24 @@ class Pesapal
         }
     }
 
-    public static function orderProcess($amount, $phone, $callback, $updatePesapalIPNID = "adeac997-b32d-4f06-9846-ddd65093eab4")
+    public static function orderProcess($reference, $amount, $phone, $description, $callback, $customer_names, $email, $customer_id)
     {
         try {
             //code...
             $token = self::pesapalAuth();
-            // $supportedCurrencies = strtoupper(self::$options->businessCurrency);
-
             $payload = json_encode(array(
-                'id' => rand(0, 9999999999),
+                'id' => $reference,
                 'currency' => 'UGX',
                 'amount' => $amount,
-                'description' => 'testApi',
+                'description' => $description,
                 'redirect_mode' => 'PARENT_WINDOW',
                 'callback_url' => $callback,
-                'notification_id' => $updatePesapalIPNID,
+                'notification_id' => "586746f5-98fc-422e-8f16-ddd61026fb31",
                 'billing_address' => array(
                     'phone_number' => $phone,
-                    'first_name' => 'Katene',
-                    'last_name' => 'Nicholas',
+                    'first_name' => $customer_names,
+                    'last_name' => $customer_names,
+                    'email' => $email
 
                 )
             ));
@@ -138,31 +138,42 @@ class Pesapal
             if (!$token->success) {
                 throw new \Exception("Failed to obtain Token");
             }
-
             $url = self::$pesapalBaseUrl . "/api/Transactions/SubmitOrderRequest";
             $headers = array("Content-Type" => "application/json", 'accept' => 'application/json', 'Authorization' => 'Bearer ' . $token->message->token);
             $data = Curl::Post($url, $headers, $payload);
+
+
+            Transaction::create([
+                'reference' => $reference,
+                'amount' => $amount,
+                'type' => 'Credit',
+                'customer_id' => $customer_id,
+                'payment_mode' => "App",
+                'reference' => $reference,
+                'status' => config("status.payment_status.pending"),
+                'phone_number' => $phone,
+                "description" => $description
+            ]);
 
             $data = json_decode(json_encode($data));
 
             return $data;
         } catch (\Throwable $th) {
-            //throw $th;
+
             return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
     }
 
-    public static function transactionStatus()
+    public static function transactionStatus(string $oderTrackingId, string $oderMerchantReference)
     {
+
         try {
             //code...
-            $transId = $_GET['OrderTrackingId'];
-            $merchant = $_GET['OrderMerchantReference'];
-
+            $transId = $oderTrackingId;
+            // $merchant = $oderMerchantReference;
             if (!isset($transId) || empty($transId)) {
 
-
-                return response()->json(['success' => false, 'message' => 'Missing Transaction ID']);
+                throw new \Exception("Missing Transaction ID");
             }
 
             $token = self::pesapalAuth();

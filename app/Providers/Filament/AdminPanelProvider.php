@@ -34,10 +34,17 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->passwordReset()
+
             ->sidebarWidth('16rem')
             ->maxContentWidth(MaxWidth::Full)
             ->colors([
                 'primary' => Color::Amber,
+                'secondary' => Color::Gray,
+                'success' => Color::Green,
+                'danger' => Color::Red,
+                'warning' => Color::Orange,
+                'info' => Color::Blue,
+                // 'dark' => Color::Dark,
             ])
             ->navigationGroups([
                 'Users',
@@ -53,24 +60,23 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentBackgroundsPlugin::make()
-                ->showAttribution(false)
-                ,
+                    ->showAttribution(false),
                 \Hasnayeen\Themes\ThemesPlugin::make(),
                 BreezyCore::make()
-                ->myProfile(
-                    shouldRegisterUserMenu: true,
-                    // shouldRegisterNavigation: true,
-                    hasAvatars: true,
-                    slug: 'my-profile',
-                )
+                    ->myProfile(
+                        shouldRegisterUserMenu: true,
+                        // shouldRegisterNavigation: true,
+                        hasAvatars: true,
+                        slug: 'my-profile',
+                    )
 
-                ->passwordUpdateRules(
-                    rules: [Password::default()->mixedCase()->uncompromised(3)],
-                    requiresCurrentPassword: true,
-                )
-                ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
-                // ->avatarUploadComponent(fn () => FileUpload::make('avatar_url')->disk('profile-photos'))
-                ->enableTwoFactorAuthentication()
+                    ->passwordUpdateRules(
+                        rules: [Password::default()->mixedCase()->uncompromised(3)],
+                        requiresCurrentPassword: true,
+                    )
+                    ->avatarUploadComponent(fn ($fileUpload) => $fileUpload->disableLabel())
+                    // ->avatarUploadComponent(fn () => FileUpload::make('avatar_url')->disk('profile-photos'))
+                    ->enableTwoFactorAuthentication()
                 // ->enableSanctumTokens(
                 //     permissions: ['create', 'read', 'update', 'delete', 'list', 'view'],
                 // ),

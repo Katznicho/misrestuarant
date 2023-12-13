@@ -20,6 +20,10 @@ class Customer extends Model
         'gender',
         'address',
         'card_id',
+        'pin',
+        'status',
+        'minimum_deposit_amount'
+        
     ];
 // a customer has one card
     public function card(): HasOne

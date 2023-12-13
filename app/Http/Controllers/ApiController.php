@@ -156,7 +156,6 @@ class ApiController extends Controller
                 $customer = Customer::where('card_id', $cardDetails->id)->first();
                 //create  a transaction
                 Transaction::create([
-                    // 'card_id' => $cardDetails->id,
                     'amount' => $request->amount,
                     'type' => $request->type??'Credit',
                     'user_id' => $this->getCurrentLoggedUserBySanctum()->id,

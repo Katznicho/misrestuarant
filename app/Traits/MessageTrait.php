@@ -13,6 +13,8 @@ trait MessageTrait
         $key =  Config::get('services.AT.apiKey');
         $username =  Config::get('services.AT.AppName');
 
+        $phoneNumber = $this->formatMobileInternational($phoneNumber);
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -36,5 +38,22 @@ trait MessageTrait
 
         curl_close($curl);
         return $response;
+    }
+
+    public function formatMobileInternational($mobile)
+    {
+        $length = strlen($mobile);
+        $m = '+256';
+        //format 1: +256752665888
+        if ($length == 13)
+            return $mobile;
+        elseif ($length == 12) //format 2: 256752665888
+            return "+" . $mobile;
+        elseif ($length == 10) //format 3: 0752665888
+            return $m .= substr($mobile, 1);
+        elseif ($length == 9) //format 4: 752665888
+            return $m .= $mobile;
+
+        return $mobile;
     }
 }

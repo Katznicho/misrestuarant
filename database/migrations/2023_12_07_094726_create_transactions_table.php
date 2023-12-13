@@ -17,13 +17,14 @@ return new class extends Migration
             $table->string('amount');
             $table->string('phone_number');
             $table->string("payment_mode");
+            $table->string("payment_method")->nullable();
             $table->text('description')->nullable;
             $table->string('reference');
             $table->string("order_tracking_id")->nullable();
             $table->string("OrderNotificationType")->nullable();
-            $table->foreignId("customer_id")->references("id")->on("customers")->onDelete("cascade")->nullable();
-            $table->foreignId("branch_id")->references("id")->on("branches")->onDelete("cascade")->nullable();
-            $table->foreignId("user_id")->references("id")->on("users")->onDelete("cascade")->nullable();
+            $table->foreignId("customer_id")->nullable()->references("id")->on("customers")->onDelete("cascade");
+            $table->foreignId("branch_id")->nullable()->references("id")->on("branches")->onDelete("cascade");
+            $table->foreignId("user_id")->nullable()->references("id")->on("users")->onDelete("cascade");
             $table->softDeletes();
             $table->timestamps();
         });

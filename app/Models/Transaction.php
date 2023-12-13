@@ -22,6 +22,8 @@ class Transaction extends Model
         'branch_id',
         'user_id',
         'status',
+        'order_tracking_id',
+        'OrderNotificationType',
     ];
 
 
